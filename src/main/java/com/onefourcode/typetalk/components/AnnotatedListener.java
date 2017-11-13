@@ -32,98 +32,97 @@ import com.atlassian.user.User;
  * Confluence Event Listener
  */
 public class AnnotatedListener implements DisposableBean, InitializingBean {
-   private static final Logger              LOGGER = LoggerFactory.getLogger(AnnotatedListener.class);
+  private static final Logger              LOGGER = LoggerFactory.getLogger(AnnotatedListener.class);
 
-   private final WebResourceUrlProvider     webResourceUrlProvider;
-   private final EventPublisher             eventPublisher;
-   private final ConfigurationManager       configurationManager;
-   private final PersonalInformationManager personalInformationManager;
+  private final WebResourceUrlProvider     webResourceUrlProvider;
+  private final EventPublisher             eventPublisher;
+  private final ConfigurationManager       configurationManager;
+  private final PersonalInformationManager personalInformationManager;
 
-   public AnnotatedListener(EventPublisher eventPublisher, ConfigurationManager configurationManager,
+  public AnnotatedListener(EventPublisher eventPublisher, ConfigurationManager configurationManager,
          PersonalInformationManager personalInformationManager, WebResourceUrlProvider webResourceUrlProvider) {
-      this.eventPublisher = checkNotNull(eventPublisher);
-      this.configurationManager = checkNotNull(configurationManager);
-      this.personalInformationManager = checkNotNull(personalInformationManager);
-      this.webResourceUrlProvider = checkNotNull(webResourceUrlProvider);
-   }
+    this.eventPublisher = checkNotNull(eventPublisher);
+    this.configurationManager = checkNotNull(configurationManager);
+    this.personalInformationManager = checkNotNull(personalInformationManager);
+    this.webResourceUrlProvider = checkNotNull(webResourceUrlProvider);
+  }
 
-   @EventListener
+  @EventListener
    public void blogPostCreateEvent(BlogPostCreateEvent event) {
-      sendMessages(event, event.getBlogPost(), "new blog post");
-   }
+    sendMessages(event, event.getBlogPost(), "new blog post");
+  }
 
-   @EventListener
+  @EventListener
    public void pageCreateEvent(PageCreateEvent event) {
-      sendMessages(event, event.getPage(), "new page created");
-   }
+    sendMessages(event, event.getPage(), "new page created");
+  }
 
-   @EventListener
+  @EventListener
    public void pageUpdateEvent(PageUpdateEvent event) {
-      sendMessages(event, event.getPage(), "page updated");
-   }
+    sendMessages(event, event.getPage(), "page updated");
+  }
 
-   private void sendMessages(ContentEvent event, AbstractPage page, String action) {
-      if (event.isSuppressNotifications()) {
-         LOGGER.info("Suppressing notification for {}.", page.getTitle());
-         return;
-      }
-      TypetalkMessage message = getMessage(page, action);
-      for (String webhookUrl : getWebhookUrl(page)) {
-         sendMessage(webhookUrl, message);
-      }
-   }
+  private void sendMessages(ContentEvent event, AbstractPage page, String action) {
+    if (event.isSuppressNotifications()) {
+      LOGGER.info("Suppressing notification for {}.", page.getTitle());
+      return;
+    }
+    TypetalkMessage message = getMessage(page, action);
+    for (String webhookUrl : getWebhookUrl(page)) {
+      sendMessage(webhookUrl, message);
+    }
+  }
 
-   private List<String> getWebhookUrl(AbstractPage page) {
-      String spaceWebhookUrl = configurationManager.getSpaceWebhookUrl(page.getSpaceKey());
-      if (spaceWebhookUrl.isEmpty()) {
-         return Collections.emptyList();
-      }
-      return Arrays.asList(spaceWebhookUrl.split(","));
-   }
+  private List<String> getWebhookUrl(AbstractPage page) {
+    String spaceWebhookUrl = configurationManager.getSpaceWebhookUrl(page.getSpaceKey());
+    if (spaceWebhookUrl.isEmpty()) {
+      return Collections.emptyList();
+    }
+    return Arrays.asList(spaceWebhookUrl.split(","));
+  }
 
-   private TypetalkMessage getMessage(AbstractPage page, String action) {
-      ConfluenceUser user = page.getLastModifier() != null ? page.getLastModifier() : page.getCreator();
-      TypetalkMessage message = new TypetalkMessage();
-      message = appendPageLink(message, page);
-      message = message.text(" - " + action + " by ");
-      return appendPersonalSpaceUrl(message, user);
-   }
+  private TypetalkMessage getMessage(AbstractPage page, String action) {
+    ConfluenceUser user = page.getLastModifier() != null ? page.getLastModifier() : page.getCreator();
+    TypetalkMessage message = new TypetalkMessage();
+    message = appendPageLink(message, page);
+    message = message.text(" - " + action + " by ");
+    return appendPersonalSpaceUrl(message, user);
+  }
 
-   private void sendMessage(String webhookUrl, TypetalkMessage message) {
-      LOGGER.info("Sending to Typetalk topic on webhookUrl {} with message {}.", webhookUrl, message.toString());
-      try {
-         new Typetalk(webhookUrl).push(message);
-      }
-      catch (IOException e) {
-         LOGGER.error("Error when sending Typetalk message", e);
-      }
-   }
+  private void sendMessage(String webhookUrl, TypetalkMessage message) {
+    LOGGER.info("Sending to Typetalk topic on webhookUrl {} with message {}.", webhookUrl, message.toString());
+    try {
+      new Typetalk(webhookUrl).push(message);
+    } catch (IOException e) {
+      LOGGER.error("Error when sending Typetalk message", e);
+    }
+  }
 
-   private TypetalkMessage appendPersonalSpaceUrl(TypetalkMessage message, User user) {
-      if (null == user) {
-         return message.text("unknown user");
-      }
-      return message.link(webResourceUrlProvider.getBaseUrl(UrlMode.ABSOLUTE) + "/"
+  private TypetalkMessage appendPersonalSpaceUrl(TypetalkMessage message, User user) {
+    if (null == user) {
+      return message.text("unknown user");
+    }
+    return message.link(webResourceUrlProvider.getBaseUrl(UrlMode.ABSOLUTE) + "/"
             + personalInformationManager.getOrCreatePersonalInformation(user).getUrlPath(), user.getFullName());
-   }
+  }
 
-   private TypetalkMessage appendPageLink(TypetalkMessage message, AbstractPage page) {
-      return message.link(tinyLink(page), page.getSpace().getDisplayTitle() + " - " + page.getTitle());
-   }
+  private TypetalkMessage appendPageLink(TypetalkMessage message, AbstractPage page) {
+    return message.link(tinyLink(page), page.getSpace().getDisplayTitle() + " - " + page.getTitle());
+  }
 
-   private String tinyLink(AbstractPage page) {
-      return webResourceUrlProvider.getBaseUrl(UrlMode.ABSOLUTE) + "/x/" + new TinyUrl(page).getIdentifier();
-   }
+  private String tinyLink(AbstractPage page) {
+    return webResourceUrlProvider.getBaseUrl(UrlMode.ABSOLUTE) + "/x/" + new TinyUrl(page).getIdentifier();
+  }
 
-   @Override
+  @Override
    public void afterPropertiesSet() throws Exception {
-      LOGGER.debug("Register Typetalk event listener");
-      eventPublisher.register(this);
-   }
+    LOGGER.debug("Register Typetalk event listener");
+    eventPublisher.register(this);
+  }
 
-   @Override
+  @Override
    public void destroy() throws Exception {
-      LOGGER.debug("Un-register Typetalk event listener");
-      eventPublisher.unregister(this);
-   }
+    LOGGER.debug("Un-register Typetalk event listener");
+    eventPublisher.unregister(this);
+  }
 }
