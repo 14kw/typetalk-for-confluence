@@ -1,0 +1,84 @@
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+        <param name="atlassian-data-center-compatible">true</param>
+    </plugin-info>
+
+    <!-- add our i18n resource -->
+    <resource type="i18n" name="i18n" location="typetalk-for-confluence"/>
+    
+    <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
+    
+    <component name="Annotated Event Listener" key="annotated-listener"
+               class="com.onefourcode.typetalk.components.AnnotatedListener"/>
+
+    <component-import name="Request Factory" key="request-factory" interface="com.atlassian.sal.api.net.RequestFactory" />
+    <component-import name="Executor Factory" key="executor-factory" interface="com.atlassian.sal.api.executor.ThreadLocalDelegateExecutorFactory" />
+
+    <component name="Configuration Manager"
+               key="configurationManager"
+               class="com.onefourcode.typetalk.components.ConfigurationManager">
+        <description>Stores the details of the configured Typetalk settings in Bandana</description>
+    </component>
+
+    <!-- Space config -->
+    <xwork name="typetalkSpaceConfigurationAction" key="typetalkSpaceConfigurationAction">
+        <package name="typetalk-space-configure" extends="default" namespace="/spaces">
+            <default-interceptor-ref name="defaultStack"/>
+
+            <action name="typetalk" class="com.onefourcode.typetalk.actions.ViewSpaceConfigurationAction">
+                <result name="success" type="velocity">/templates/typetalkadmin/space-config.vm</result>
+            </action>
+            <action name="doconfigure-typetalk" class="com.onefourcode.typetalk.actions.SaveSpaceConfigurationAction">
+                <interceptor-ref name="validatingStack"/>
+                <param name="RequireSecurityToken">true</param>
+                <result name="input" type="velocity">/templates/typetalkadmin/space-config.vm</result>
+                <result name="error" type="velocity">/templates/typetalkadmin/space-config.vm</result>
+                <result name="success" type="redirect">/spaces/typetalk.action?key=${key}&amp;result=success</result>
+            </action>
+
+        </package>
+    </xwork>
+
+    <web-item key="typetalk-space-configuration" name="Typetalk Space Configuration"
+              section="system.space.admin/addons"
+              weight="1000">
+        <description key="typetalk-space-configuration.name">Typetalk Space Configuration</description>
+        <label key="typetalk-space-configuration.name"/>
+        <link linkId="typetalk-space-configuration">/spaces/typetalk.action?key=$generalUtil.urlEncode($space.key)</link>
+        <icon height="16" width="16">
+            <link absolute="true">
+                $webResourceManager.getStaticPluginResource("${project.groupId}.${project.artifactId}:image-resources",
+                "typetalk-icon-16x16.png")
+            </link>
+        </icon>
+        <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.HasSpaceCondition"/>
+        <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.SpacePermissionCondition">
+            <param name="permission">administer</param>
+        </condition>
+        <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.NotPersonalSpaceCondition"/>
+        <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.SpaceSidebarCondition" invert="true"/>
+    </web-item>
+
+    <web-item key="typetalk-space-configuration-2" name="Typetalk Space Configuration"
+              section="system.space.tools/addons"
+              weight="1000">
+        <description key="typetalk-space-configuration.name">Typetalk Space Configuration</description>
+        <label key="typetalk-space-configuration.name"/>
+        <link linkId="typetalk-space-configuration">/spaces/typetalk.action?key=$generalUtil.urlEncode($space.key)</link>
+        <icon height="16" width="16">
+            <link absolute="true">
+                $webResourceManager.getStaticPluginResource("${project.groupId}.${project.artifactId}:image-resources",
+                "typetalk-icon-16x16.png")
+            </link>
+        </icon>
+        <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.HasSpaceCondition"/>
+        <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.SpacePermissionCondition">
+            <param name="permission">administer</param>
+        </condition>
+        <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.NotPersonalSpaceCondition"/>
+        <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.SpaceSidebarCondition"/>
+    </web-item>
+</atlassian-plugin>

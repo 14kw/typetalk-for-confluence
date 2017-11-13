@@ -1,0 +1,71 @@
+#* @vtlvariable name="action" type="com.onefourcode.typetalk.actions.ViewSpaceConfigurationAction" *#
+#requireResource("confluence.web.resources:space-admin")
+
+<html>
+<head>
+    <title>Typetalk Configuration</title>
+    <meta name="decorator" content="atl.general"/>
+</head>
+    #applyDecorator("root")
+    #decoratorParam("helper" $action.helper)
+    #decoratorParam("context" "space-administration")
+    #decoratorParam("mode" "view-space-administration")
+
+    #applyDecorator ("root")
+    #decoratorParam ("context" "spaceadminpanel")
+    #decoratorParam ("selection" "typetalk-space-configuration")
+    #decoratorParam ("title" "Typetalk Configuration")
+    #decoratorParam ("selectedTab" "admin")
+    #decoratorParam ("selectedSpaceToolsWebItem" "typetalk-space-configuration-2")
+    #decoratorParam("helper" $action.helper)
+
+<body>
+
+<form id="typetalk-form" action="doconfigure-typetalk.action" method="post"
+      class="aui edit-space-details">
+    <h2>Typetalk Configuration</h2>
+
+
+    #form_xsrfToken()
+    <input type="hidden" name="key" value="$generalUtil.urlEncode($action.key)"/>
+        #if($actionErrors && $actionErrors.size() > 0)
+        <div class="aui-message error">
+            <span class="svg-icon error size-18"></span>
+            <strong>$action.getText("errors.occurred")</strong>
+            <ul>
+                #foreach($error in $actionErrors)
+                    <li>$error</li>
+                #end
+            </ul>
+        </div>
+        #end
+        #if($action.successFullUpdate)
+            <div class="aui-message success shadowed closeable">
+                <p class="title">
+                    <span class="aui-icon icon-success"></span>
+                    <strong>$action.getText("typetalk.action.success.spaceconfig")</strong>
+                </p>
+            </div>
+        <!-- .aui-message -->
+        #end
+    <p>
+        Confluence will notify a Typetalk webhookUrl when a blog post is created or a page is created or updated in this space. Enter the Typetalk webhookUrl.<br>
+        (WebhookUrl is Typetalk API endpoint. ex:https://typetalk.com/api/v1/topics/topicid?typetalkToken=token)
+    </p>
+
+    <div class="field-group">
+        <label for="webhookUrl">WebhookUrl</label>
+        <input id="webhookUrl" class="text long-field" type="text" name="webhookUrl" value="$!action.webhookUrl"/>
+    </div>
+
+    <div class="buttons-container">
+        <div class="buttons">
+            <input class="button submit" type="submit" value="Save"/>
+            <a class=="cancel" href="">Cancel</a>
+        </div>
+    </div>
+</form>
+</body>
+</html>
+#end
+#end
