@@ -14,34 +14,59 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Post message using Typetalk api. 
+ */
 public class TypetalkService {
-    private final HttpRequestFactory requestFactory;
+  private final HttpRequestFactory requestFactory;
 
-    public TypetalkService(Proxy proxy) {
-        NetHttpTransport.Builder builder = new NetHttpTransport.Builder();
-        builder.setProxy(proxy);
-        requestFactory = builder.build().createRequestFactory();
-    }
+  /**
+   * TypetalkService constructor.
+   * 
+   * @param proxy HTTP proxy
+   */
+  public TypetalkService(Proxy proxy) {
+    NetHttpTransport.Builder builder = new NetHttpTransport.Builder();
+    builder.setProxy(proxy);
+    requestFactory = builder.build().createRequestFactory();
+  }
 
-    public TypetalkService() {
+  public TypetalkService() {
         this(null);
-    }
+  }
 
-    public void push(String endpointUrl, TypetalkMessage text, List<TypetalkAttachment> attachments) throws IOException {
-        Map<String, Object> payload = new HashMap<String, Object>();
-        if (!attachments.isEmpty()) {
-            payload.put("attachments", attachments);
-        }
-        payload.put("message", text.toString());      
-        execute(endpointUrl, payload);
+  /**
+   * Create payload message and execute post message action.
+   * 
+   * @param endpointUrl Typetalk api endpoint
+   * @param text message text
+   * @param attachments attachment files
+   * @throws IOException Incorrect args type
+   */
+  public void push(String endpointUrl, 
+                   TypetalkMessage text, 
+                   List<TypetalkAttachment> attachments) throws IOException {
+    Map<String, Object> payload = new HashMap<String, Object>();
+    if (!attachments.isEmpty()) {
+      payload.put("attachments", attachments);
     }
+    payload.put("message", text.toString());      
+    execute(endpointUrl, payload);
+  }
 
-    public void push(String endpointUrl, TypetalkMessage text) throws IOException {
-        push(endpointUrl, text, new ArrayList<TypetalkAttachment>());
-    }
+  public void push(String endpointUrl, TypetalkMessage text) throws IOException {
+    push(endpointUrl, text, new ArrayList<TypetalkAttachment>());
+  }
 
-    public void execute(String endpointUrl, Map<String, Object> payload) throws IOException {
-        requestFactory.buildPostRequest(new GenericUrl(endpointUrl), new UrlEncodedContent(payload))
+  /**
+   * Post message to Typetalk api.
+   * 
+   * @param endpointUrl Typetalk api endpoint
+   * @param payload message data
+   * @throws IOException Incorrect URL or payload format
+   */
+  public void execute(String endpointUrl, Map<String, Object> payload) throws IOException {
+    requestFactory.buildPostRequest(new GenericUrl(endpointUrl), new UrlEncodedContent(payload))
                 .execute();
-    }
+  }
 }
