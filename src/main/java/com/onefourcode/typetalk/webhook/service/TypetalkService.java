@@ -15,33 +15,33 @@ import java.util.List;
 import java.util.Map;
 
 public class TypetalkService {
-    private final HttpRequestFactory requestFactory;
+  private final HttpRequestFactory requestFactory;
 
-    public TypetalkService(Proxy proxy) {
-        NetHttpTransport.Builder builder = new NetHttpTransport.Builder();
-        builder.setProxy(proxy);
-        requestFactory = builder.build().createRequestFactory();
-    }
+  public TypetalkService(Proxy proxy) {
+    NetHttpTransport.Builder builder = new NetHttpTransport.Builder();
+    builder.setProxy(proxy);
+    requestFactory = builder.build().createRequestFactory();
+  }
 
-    public TypetalkService() {
+  public TypetalkService() {
         this(null);
-    }
+  }
 
-    public void push(String endpointUrl, TypetalkMessage text, List<TypetalkAttachment> attachments) throws IOException {
-        Map<String, Object> payload = new HashMap<String, Object>();
-        if (!attachments.isEmpty()) {
-            payload.put("attachments", attachments);
-        }
-        payload.put("message", text.toString());      
-        execute(endpointUrl, payload);
+  public void push(String endpointUrl, TypetalkMessage text, List<TypetalkAttachment> attachments) throws IOException {
+    Map<String, Object> payload = new HashMap<String, Object>();
+    if (!attachments.isEmpty()) {
+      payload.put("attachments", attachments);
     }
+    payload.put("message", text.toString());      
+    execute(endpointUrl, payload);
+  }
 
-    public void push(String endpointUrl, TypetalkMessage text) throws IOException {
-        push(endpointUrl, text, new ArrayList<TypetalkAttachment>());
-    }
+  public void push(String endpointUrl, TypetalkMessage text) throws IOException {
+    push(endpointUrl, text, new ArrayList<TypetalkAttachment>());
+  }
 
-    public void execute(String endpointUrl, Map<String, Object> payload) throws IOException {
-        requestFactory.buildPostRequest(new GenericUrl(endpointUrl), new UrlEncodedContent(payload))
+  public void execute(String endpointUrl, Map<String, Object> payload) throws IOException {
+    requestFactory.buildPostRequest(new GenericUrl(endpointUrl), new UrlEncodedContent(payload))
                 .execute();
-    }
+  }
 }
