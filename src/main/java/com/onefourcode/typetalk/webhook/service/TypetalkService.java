@@ -27,7 +27,9 @@ public class TypetalkService {
         this(null);
   }
 
-  public void push(String endpointUrl, TypetalkMessage text, List<TypetalkAttachment> attachments) throws IOException {
+  public void push(String endpointUrl, 
+                   TypetalkMessage text, 
+                   List<TypetalkAttachment> attachments) throws IOException {
     Map<String, Object> payload = new HashMap<String, Object>();
     if (!attachments.isEmpty()) {
       payload.put("attachments", attachments);

@@ -34,7 +34,11 @@ public class SaveSpaceConfigurationAction extends ConfluenceActionSupport {
 
   @Override
    public boolean isPermitted() {
-    return spacePermissionManager.hasPermissionForSpace(getAuthenticatedUser(), Arrays.asList(SpacePermission.ADMINISTER_SPACE_PERMISSION), spaceManager.getSpace(key));
+    return spacePermissionManager.hasPermissionForSpace(
+      getAuthenticatedUser(), 
+      Arrays.asList(SpacePermission.ADMINISTER_SPACE_PERMISSION), 
+      spaceManager.getSpace(key)
+    );
   }
 
   @Override

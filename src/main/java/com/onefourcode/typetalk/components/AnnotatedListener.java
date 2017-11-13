@@ -32,15 +32,17 @@ import com.atlassian.user.User;
  * Confluence Event Listener
  */
 public class AnnotatedListener implements DisposableBean, InitializingBean {
-  private static final Logger              LOGGER = LoggerFactory.getLogger(AnnotatedListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AnnotatedListener.class);
 
   private final WebResourceUrlProvider     webResourceUrlProvider;
   private final EventPublisher             eventPublisher;
   private final ConfigurationManager       configurationManager;
   private final PersonalInformationManager personalInformationManager;
 
-  public AnnotatedListener(EventPublisher eventPublisher, ConfigurationManager configurationManager,
-         PersonalInformationManager personalInformationManager, WebResourceUrlProvider webResourceUrlProvider) {
+  public AnnotatedListener(EventPublisher eventPublisher, 
+                           ConfigurationManager configurationManager,
+                           PersonalInformationManager personalInformationManager, 
+                           WebResourceUrlProvider webResourceUrlProvider) {
     this.eventPublisher = checkNotNull(eventPublisher);
     this.configurationManager = checkNotNull(configurationManager);
     this.personalInformationManager = checkNotNull(personalInformationManager);
@@ -82,7 +84,10 @@ public class AnnotatedListener implements DisposableBean, InitializingBean {
   }
 
   private TypetalkMessage getMessage(AbstractPage page, String action) {
-    ConfluenceUser user = page.getLastModifier() != null ? page.getLastModifier() : page.getCreator();
+    ConfluenceUser user = 
+      page.getLastModifier() != null 
+        ? page.getLastModifier() 
+        : page.getCreator();
     TypetalkMessage message = new TypetalkMessage();
     message = appendPageLink(message, page);
     message = message.text(" - " + action + " by ");
@@ -90,7 +95,8 @@ public class AnnotatedListener implements DisposableBean, InitializingBean {
   }
 
   private void sendMessage(String webhookUrl, TypetalkMessage message) {
-    LOGGER.info("Sending to Typetalk topic on webhookUrl {} with message {}.", webhookUrl, message.toString());
+    LOGGER.info("Sending to Typetalk topic on webhookUrl {} with message {}.", 
+                webhookUrl, message.toString());
     try {
       new Typetalk(webhookUrl).push(message);
     } catch (IOException e) {
@@ -102,16 +108,23 @@ public class AnnotatedListener implements DisposableBean, InitializingBean {
     if (null == user) {
       return message.text("unknown user");
     }
-    return message.link(webResourceUrlProvider.getBaseUrl(UrlMode.ABSOLUTE) + "/"
-            + personalInformationManager.getOrCreatePersonalInformation(user).getUrlPath(), user.getFullName());
+    return message.link(
+            webResourceUrlProvider.getBaseUrl(UrlMode.ABSOLUTE) + "/"
+              + personalInformationManager.getOrCreatePersonalInformation(user).getUrlPath(), 
+            user.getFullName()
+           );
   }
 
   private TypetalkMessage appendPageLink(TypetalkMessage message, AbstractPage page) {
-    return message.link(tinyLink(page), page.getSpace().getDisplayTitle() + " - " + page.getTitle());
+    return message.link(
+            tinyLink(page), 
+            page.getSpace().getDisplayTitle() + " - " + page.getTitle()
+           );
   }
 
   private String tinyLink(AbstractPage page) {
-    return webResourceUrlProvider.getBaseUrl(UrlMode.ABSOLUTE) + "/x/" + new TinyUrl(page).getIdentifier();
+    return webResourceUrlProvider.getBaseUrl(UrlMode.ABSOLUTE) + "/x/"
+             + new TinyUrl(page).getIdentifier();
   }
 
   @Override

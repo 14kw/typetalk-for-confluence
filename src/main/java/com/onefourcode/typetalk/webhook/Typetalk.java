@@ -95,7 +95,8 @@ public class Typetalk {
    * @param attachment TypetalkAttachment to send
    * @throws IOException
    */
-  public void push(TypetalkMessage message, TypetalkAttachment attachment) throws IOException {
+  public void push(TypetalkMessage message, 
+                   TypetalkAttachment attachment) throws IOException {
     if (message != null && attachment != null) {
       typetalkService.push(endpointUrl, message, Lists.of(attachment));
     }
@@ -108,7 +109,8 @@ public class Typetalk {
    * @param attachments TypetalkAttachment to send
    * @throws IOException
    */
-  public void push(TypetalkMessage message, List<TypetalkAttachment> attachments) throws IOException {
+  public void push(TypetalkMessage message, 
+                   List<TypetalkAttachment> attachments) throws IOException {
     if (message != null && !attachments.isEmpty()) {
       typetalkService.push(endpointUrl, message, attachments);
     }
