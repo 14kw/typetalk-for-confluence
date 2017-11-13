@@ -1,0 +1,3 @@
+inspecode:
+  checkstyle: auto-fix
+  cpd: default
