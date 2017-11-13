@@ -85,7 +85,7 @@ public class AnnotatedListener implements DisposableBean, InitializingBean {
 
   private TypetalkMessage getMessage(AbstractPage page, String action) {
     ConfluenceUser user = 
-      page.getLastModifier() != null 
+        page.getLastModifier() != null 
         ? page.getLastModifier() 
         : page.getCreator();
     TypetalkMessage message = new TypetalkMessage();

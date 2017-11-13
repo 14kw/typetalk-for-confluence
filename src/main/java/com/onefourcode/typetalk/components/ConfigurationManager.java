@@ -13,9 +13,9 @@ public class ConfigurationManager {
 
   public void setSpaceWebhookUrl(String spaceKey, String webhookUrl) {
     bandanaManager.setValue(
-      new ConfluenceBandanaContext(spaceKey), 
-      ConfigurationOption.WEBHOOK_URL.getBandanaKey(), 
-      webhookUrl
+        new ConfluenceBandanaContext(spaceKey), 
+        ConfigurationOption.WEBHOOK_URL.getBandanaKey(), 
+        webhookUrl
     );
   }
 
