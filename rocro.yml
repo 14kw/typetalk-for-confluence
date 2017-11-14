@@ -1,0 +1,5 @@
+inspecode:
+  checkstyle: 
+    auto-fix: true
+    config-file: /google_checks.xml
+  cpd: default
